@@ -1,0 +1,25 @@
+{
+  "name": "vscode-archarit",
+  "displayName": "Archarit",
+  "publisher": "bazumtaaveyno-cloud",
+  "engines": {
+    "vscode": "^1.60.0"
+  },
+  "contributes": {
+    "languages": [
+      {
+        "id": "archarit",
+        "aliases": ["Archarit", "archarit"],
+        "extensions": [".arch", ".archarit"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "archarit",
+        "scopeName": "source.archarit",
+        "path": "../syntaxes/archarit.tmLanguage.json"
+      }
+    ]
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "scopeName": "source.archarit",
+  "patterns": [
+    {
+      "name": "keyword.control.archarit",
+      "match": "\\b(val|var|let|mut|fun|return|if|elif|else|match|guard|for|while|loop|in|break|continue|true|false|null|async|await|go|defer|import|try|catch|Result|Ok|Error)\\b"
+    },
+    {
+      "name": "constant.numeric.archarit",
+      "match": "\\b\\d+(?:\\.\\d+)?\\b"
+    },
+    {
+      "name": "string.quoted.double.archarit",
+      "begin": "\"",
+      "end": "\"",
+      "patterns": [
+        {
+          "name": "constant.character.escape.archarit",
+          "match": "\\\\."
+        }
+      ]
+    },
+    {
+      "name": "comment.line.double-slash.archarit",
+      "match": "//.*$"
+    }
+  ],
+  "fileTypes": ["arch", "archarit"]
+}

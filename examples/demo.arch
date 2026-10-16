@@ -1,0 +1,679 @@
+// ================================================================
+// ARCHARIT - ארחרית - formerly Atid עתיד
+// 11 CORE DIVISIONS + OPTIONAL DIVISION 12
+// v2.5 CONSOLIDATED SUMMARY
+// Build: archarit build --target=native/web/mobile/c3l
+// if BOTH allowed: if name == "yes" {} AND if(name == "yes"){}
+// ================================================================
+
+// 1. Core Language - Int/f32 only
+// TOKENS:
+// val var let mut fun return if() elif else match guard
+// for while loop in break continue true false null
+// Int f32 String Bool List Map Set
+// .. .* ./ .+ channel send receive open read write close
+// upper lower trim split len add remove forEach
+
+val nameConst: String = "Archarit"
+var age: Int = 20
+let mut score: f32 = 0
+
+fun add(a: f32, b: f32): f32 { return a + b }
+
+if age < 18 { print("kid") } elif age < 60 { print("adult") } else { print("elder") }
+if(age < 18){ print("kid") } // C-style also works
+
+match age {
+    0..17 => print("kid")
+    18..59 => print("adult")
+    _ => print("other")
+}
+
+guard age > 0 else { return }
+
+for i in 0..10 {
+    if i == 5 { continue }
+    if i == 10 { break }
+}
+
+var state = false
+var n = read("Do you wish to continue? yes/no: ")
+
+if n == "yes" {
+    state = true
+    print("true")
+} else {
+    state = false
+    print("false")
+}
+
+// Collections
+val list: List<Int> = [1, 2, 3]
+val names = ["John", "Jane"]
+val user = { "name": "John", "age": 20 }
+val unique = {1, 2, 3, 2} // Set -> {1, 2, 3}
+
+list.add(4)
+list.remove(0)
+print(list.len())
+print("John" in names)
+
+// Strings
+val greeting = "Hello $nameConst"
+val calculated = "2 + 2 = ${2 + 2}"
+val multiline = """
+    Line 1
+    Line 2
+"""
+print("hello".upper())
+print("  hi  ".trim())
+print("a,b,c".split(","))
+
+// File IO
+val file = open("data.txt")
+val contents = file.read()
+file.write("Hello Archarit")
+defer file.close()
+
+// MATLAB-style vector math
+val a = [1, 2, 3]
+val b = [4, 5, 6]
+val multiplied = a .* b       // [4, 10, 18]
+val added = a .+ b            // [5, 7, 9]
+val dotProduct = DOT(a, b)    // 32
+
+// 2. Runtime & Concurrency
+// TOKENS:
+// async await go defer app import delay
+// channel send receive on_start on_close
+
+import archarit.app
+
+app(name="ArcharitApp") {
+    on_start({
+        go {
+            delay(1)
+            print("hi")
+        }
+    })
+
+    on_close({
+        print("cleanup")
+    })
+}
+
+defer print("cleanup")
+
+val ch = channel<Int>()
+
+go {
+    ch.send(10)
+}
+
+val value = ch.receive()
+
+async fun getData() {
+    val response = await fetch(url="https://api.com/data")
+    return response.json()
+}
+
+// 3. Error & Safety
+// TOKENS:
+// try catch guard Result Ok Error is_ok value error
+
+try {
+    val data = riskyCall()
+} catch e {
+    print("error $e")
+}
+
+fun getUser(id: Int) -> Result<User, String> {
+    if id == 0 {
+        return Error("user not found")
+    }
+    return Ok(User(name="John"))
+}
+
+val result = getUser(1)
+
+if result.is_ok() {
+    print(result.value().name)
+} else {
+    print(result.error())
+}
+
+guard let user = getUser(1).value() else {
+    print("no user")
+    return
+}
+
+// 4. Toolchain & Targets
+// TOKENS:
+// archarit build --target=native/web/mobile/c3l
+// import native web mobile c3l
+
+import archarit.ui
+import archarit.web
+import archarit.c3l
+import archarit.data
+import archarit.ai
+import archarit.app
+
+// archarit build --target=native  -> fast native binary
+// archarit build --target=web     -> WASM
+// archarit build --target=mobile  -> Android/iOS
+// archarit build --target=c3l     -> .c3l 3D file
+
+// 5. 2D UI & Canvas
+// TOKENS:
+// 2d canvas stack box text button rect circle line image
+// clear draw render sprite getContext particle_system
+// on_click on_hover on_drag on_drag_start on_drag_end
+// len add remove upper lower trim split
+
+2d App {
+    canvas(size=(360, 640), color=#0f172a) {
+        stack(direction=vertical, spacing=16, padding=24) {
+            text("Archarit UI", size=28, color=white)
+
+            box(width=60, height=60, color=green, radius=30)
+
+            button("Tap", width=140, height=48, color=blue) {
+                on_click({
+                    print("clicked")
+                })
+            }
+        }
+
+        rect(x=0, y=0, width=100, height=20, color=red)
+        circle(x=50, y=50, radius=20, color=blue)
+        line(from=(0,0), to=(100,100), color=white, width=2)
+        image(path="logo.png", x=200, y=100, width=100, height=100)
+        clear(color=#111111)
+    }
+}
+
+render(App)
+
+// JS-canvas-style context
+2d CanvasApp {
+    canvas(size=(800, 600)) {
+        val ctx = getContext()
+
+        ctx.fillStyle = red
+        ctx.fillRect(x=100, y=100, width=200, height=100)
+
+        ctx.beginPath()
+        ctx.arc(x=400, y=300, radius=50, start=0, end=360)
+        ctx.fill(color=blue)
+
+        ctx.strokeStyle = white
+        ctx.lineWidth = 2
+        ctx.moveTo(x=0, y=0)
+        ctx.lineTo(x=100, y=100)
+        ctx.stroke()
+
+        ctx.fillText(text="Hello", x=100, y=50, size=20)
+    }
+}
+
+// Sprites
+val player = sprite(path="player.png", x=100, y=100, width=50, height=50) {
+    var vx = 0
+    var vy = 0
+    collision = true
+    collision_shape = "box"
+    tag = "player"
+}
+
+// Particles
+val sparks = particle_system(
+    x=400,
+    y=300,
+    count=100,
+    color=orange,
+    size=5,
+    velocity=(-50..50, -100..0),
+    lifetime=2
+)
+
+sparks.burst(x=400, y=300, count=50)
+
+// 6. Collision & Physics
+// TOKENS:
+// collision collision_shape tag collision_layer collides_with
+// physics mass bounciness friction is_colliding raycast
+// on_collision on_collision_end on_collision_stay destroy
+
+val wall = fn "3d"() {
+    geometry = Box(w=10, h=5, d=1)
+
+    collision = true // true / false / "trigger" / "soft"
+    collision_shape = "box" // box/circle/polygon/capsule/sphere/mesh
+    tag = "wall"
+    collision_layer = 0
+    collides_with = [0, 1]
+
+    physics = true
+    mass = 1
+    bounciness = 0.8
+    friction = 0.5
+
+    on_collision({ other ->
+        print("hit ${other.tag}")
+    })
+
+    on_collision_stay({ other ->
+        print("still touching ${other.tag}")
+    })
+
+    on_collision_end({ other ->
+        print("stopped touching ${other.tag}")
+    })
+}
+
+if is_colliding($box1, $box2) {
+    print("hit")
+}
+
+val hit = raycast(from=(0,0,0), to=(10,0,0))
+
+if hit.collided {
+    print("hit ${hit.object} at ${hit.point}, distance ${hit.distance}")
+}
+
+// Global collision layers
+physics {
+    layer(0, collides_with=[0, 1, 2])
+    layer(1, collides_with=[0, 2])
+    layer(2, collides_with=[0, 1])
+}
+
+// 7. Animation & Events
+// TOKENS:
+// animate timeline keyframe play pause stop
+// parallel sequence loop reverse
+// on_frame on_click on_hover on_drag on_touch on_tap
+// on_key on_start delay easing key_down
+
+var ball = { x: 40, y: 300, radius: 24, color: red }
+
+animate(ball, x=320, duration=1, easing="bounce")
+
+sequence {
+    animate(ball, x=320, duration=1)
+    animate(ball, y=500, duration=1)
+}
+
+parallel {
+    animate($door, open=1, duration=1)
+    animate($door.Handle, angle=45, duration=1)
+}
+
+timeline($door) {
+    keyframe(at=0, open=0, easing="easeIn")
+    keyframe(at=1.5, open=1, easing="bounce")
+    keyframe(at=3, open=0, easing="easeInOut")
+}
+
+play(timeline, duration=3, loop=true)
+pause(timeline)
+stop(timeline)
+
+loop(infinite=true) {
+    animate($car.Wheel, spin=360, duration=1, easing="linear")
+}
+
+on_frame({ dt ->
+    clear(color=#0b1020)
+})
+
+on_click({ print("tap") })
+on_hover({ print("hover") })
+on_drag({ x, y -> print("drag $x $y") })
+on_touch({ print("touch") })
+on_tap({ print("tap") })
+
+on_key(key="space") {
+    animate($player, y=$player.y - 20, duration=0.3, easing="easeOut")
+}
+
+if key_down("ArrowRight") {
+    player.vx = 100
+}
+
+// Custom easing
+fun myEase(t: f32) -> f32 {
+    return t * t
+}
+
+animate($box, x=10, duration=2, easing=myEase)
+
+// 8. Web/API/WebSockets
+// TOKENS:
+// server route fetch websocket use middleware
+// on_connect on_message on_disconnect broadcast broadcast_except
+// request response json html status param header body method
+// GET POST PUT DELETE
+
+server(port=8080) {
+    use(authMiddleware)
+
+    route(path="/", method=GET) {
+        return html("<h1>Hello Archarit</h1>")
+    }
+
+    route(path="/api/door/:id", method=GET) {
+        val id = request.param("id")
+        return json(data={ "opened": id })
+    }
+
+    route(path="/api/user", method=POST) {
+        val body = request.body()
+        return json(data={ "created": body.name }, status=201)
+    }
+
+    route(path="/api/user/:id", method=PUT) {
+        val id = request.param("id")
+        val body = request.body()
+        return json(data={ "updated": id })
+    }
+
+    route(path="/api/user/:id", method=DELETE) {
+        val id = request.param("id")
+        return json(data={ "deleted": id })
+    }
+
+    websocket(path="/race") {
+        on_connect({ client ->
+            print("client ${client.id} joined")
+            broadcast({ "type": "player_joined", "id": client.id })
+        })
+
+        on_message({ client, msg ->
+            val data = msg.json()
+
+            if data.type == "move" {
+                broadcast_except(client, {
+                    "type": "player_move",
+                    "id": client.id,
+                    "x": data.x,
+                    "y": data.y
+                })
+            }
+        })
+
+        on_disconnect({ client ->
+            print("client ${client.id} left")
+        })
+    }
+}
+
+val res = await fetch(
+    url="/api/data",
+    method=GET,
+    headers={
+        "Authorization": "Bearer token123",
+        "Content-Type": "application/json"
+    }
+)
+
+if res.status() == 200 {
+    print(res.json())
+}
+
+// 9. 3D C3L System
+// TOKENS:
+// fn "3d" fetch.c3l $handle part geometry transform instance
+// update render_3d detail texture joint hinge
+// Box Sphere Cylinder Capsule rotate translate scale
+
+val car = fn "3d"() {
+    geometry = Box(w=4, h=2, d=2)
+    var x = 0
+
+    part Wheel {
+        var spin = 0
+        geometry = Cylinder(r=0.5, h=0.2)
+        transform = rotate(x=spin * 360)
+    }
+
+    part Door {
+        var open = 0
+        geometry = Box(w=1, h=1, d=0.1)
+        transform = rotate(y=open * 90)
+        joint = hinge(axis=y, limit=(0..90))
+    }
+}
+
+// Create object
+val created = fn "3d"() {
+    geometry = Sphere(r=2)
+    update(color=green)
+}
+
+// Fetch existing C3L file
+val mansion = fetch.c3l("mansion.c3l")
+
+// Edit whole object
+fn "3d"($car) {
+    x = 10
+    update(color=blue)
+}
+
+// Edit part
+fn "3d"($car.Wheel) {
+    spin = 90
+}
+
+// Materials and detail
+fn "3d"($car) {
+    detail(texture="metal.png", tiling=4, strength=0.8)
+}
+
+// Instances
+fn "3d"($mansion) {
+    instance(template=car, at=(0, 0, 0), random_rotate=(0..5))
+}
+
+render_3d($car)
+
+// 10. AI & Data
+// TOKENS:
+// ai.model ai.train load_csv save predict generate ask
+// SELECT FROM WHERE ORDER BY DESC ASC
+// rand random sin cos sqrt abs floor round min max
+// forEach .* ./ DOT matrix slicing
+// classification detection chat generation reinforcement
+// epochs batch_size learning_rate optimizer loss
+// validation_split augmentation early_stopping save_best
+// on_epoch on_episode env state action reward
+
+val data = load_csv("houses.csv")
+
+val q = SELECT(*) FROM data WHERE price < 500000 ORDER BY price DESC
+
+val model = ai.train(
+    data=data,
+    model="resnet",
+    task="classification",
+    epochs=10,
+    batch_size=32,
+    learning_rate=0.001,
+    optimizer="adam",
+    loss="crossentropy",
+    validation_split=0.2,
+    augmentation=true,
+    early_stopping=true,
+    save_best=true,
+    on_epoch({ epoch, loss, accuracy ->
+        print("Epoch $epoch: loss=$loss, accuracy=$accuracy")
+    })
+)
+
+model.save("my_model.archarit")
+
+val loaded = ai.model("my_model.archarit")
+val prediction = loaded.predict(image="house.png")
+
+// Chat / generation
+val chat = ai.model("gpt")
+val answer = await chat.ask("What is Archarit?")
+
+val imageModel = ai.model("stable-diffusion")
+val generated = await imageModel.generate(prompt="a red dragon with wings")
+
+// Reinforcement learning
+val env = {
+    state: [player.x, player.y, enemy.x, enemy.y],
+    action: ["left", "right", "jump"],
+    reward: if is_colliding(player, coin) { 10 } else { -1 }
+}
+
+val agent = ai.train(
+    env=env,
+    model="dqn",
+    task="reinforcement",
+    episodes=1000,
+    on_episode({ episode, reward ->
+        print("Episode $episode: reward $reward")
+    })
+)
+
+val action = agent.predict(state=[player.x, player.y, enemy.x, enemy.y])
+
+// Data math
+val matrix = [[1, 2], [3, 4]]
+val firstRow = matrix[0, :]
+val total = data.sum(column="amount")
+
+// 11. Docs & Tests
+// TOKENS:
+// print read test expect assert describe it benchmark doc
+
+print("Hello Archarit $nameConst!")
+
+test "addition works" {
+    expect(add(1, 2) == 3)
+    assert(add(1, 2.5) == 3.5)
+}
+
+describe "Archarit core" {
+    it "creates a user" {
+        val user = User(name="John")
+        expect(user.name == "John")
+    }
+}
+
+benchmark "add performance" {
+    for i in 0..1000000 {
+        add(1, 2)
+    }
+}
+
+doc """
+Archarit is a universal language for apps, web, AI,
+2D UI, 3D C3L objects, games, and data.
+"""
+
+// ================================================================
+// 12. ART & ANIMATION
+// TOKENS:
+// art sprite vector path fill stroke gradient shader rig bone
+// pose skeleton layer blend mask particle sound_reactive
+// export import_art
+// ================================================================
+
+import archarit.art
+import archarit.animation
+
+// Vector art
+val logo = art.vector {
+    path("M 0 0 L 100 0 L 100 100 Z") {
+        fill = #22d3ee
+        stroke = white
+        stroke_width = 2
+    }
+
+    circle(x=150, y=50, radius=30) {
+        fill = gradient(from=#f472b6, to=#818cf8, direction="vertical")
+    }
+}
+
+// Sprite art
+val hero = art.sprite("hero.png") {
+    x = 100
+    y = 100
+    scale = 1.0
+    rotation = 0
+    alpha = 1
+    layer = 2
+}
+
+// Layers and blending
+art.layer("background", blend="normal")
+art.layer("characters", blend="normal")
+art.layer("effects", blend="add")
+
+// Character rig
+val character = art.rig {
+    bone("body") {
+        bone("arm_left") { length = 40 }
+        bone("arm_right") { length = 40 }
+        bone("leg_left") { length = 50 }
+        bone("leg_right") { length = 50 }
+    }
+}
+
+// Pose animation
+timeline($character) {
+    keyframe(at=0.0, pose="idle")
+    keyframe(at=0.3, pose="run_step_1")
+    keyframe(at=0.6, pose="run_step_2")
+    keyframe(at=0.9, pose="idle")
+}
+
+play(timeline, duration=0.9, loop=true)
+
+// Particles
+val particles = art.particles {
+    count = 100
+    color = orange
+    size = 4
+    lifetime = 1.5
+    velocity = (-100..100, -200..0)
+    gravity = 300
+}
+
+particles.burst(x=400, y=300, count=50)
+
+// Shader
+val glow = art.shader {
+    fragment {
+        return mix(color, white, sin(time * 5) * 0.5 + 0.5)
+    }
+}
+
+hero.effect = glow
+
+// Sound-reactive animation
+val music = art.sound("track.mp3")
+art.sound_reactive(music, target=$logo, property="scale", range=(1.0, 1.3))
+
+// Export
+art.export(logo, path="logo.svg")
+art.export(character, path="character.gif", duration=2, fps=60)
+
+// ================================================================
+// SUMMARY
+// ================================================================
+// Core: Int/f32 only; f32 accepts Int automatically.
+// 3D: val x = fn "3d"(){}; fn "3d"($x){}; fn "3d"($x.Part){}
+// Fetch: val d = fetch.c3l("file.c3l")
+// 2D: canvas(), box(), text(), stack(), sprite(), particle_system()
+// Web: server(), route(), fetch(), websocket()
+// AI: ai.model(), ai.train(), predict(), generate(), ask()
+// Animation: animate(), timeline(), keyframe(), play()
+// Art: art.vector(), art.sprite(), art.rig(), art.shader()
+// ================================================================
+
