@@ -1,20 +1,27 @@
+pub mod lexer;
+pub mod parser;
+pub mod interpreter;
+
 use std::env;
 use std::fs;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    let path = args.get(1).map(|s| s.as_str()).unwrap_or("examples/demo.arch");
 
-    match fs::read_to_string(path) {
-        Ok(src) => {
-            println!("Archarit Runner");
-            println!("--- file: {} ---", path);
-            println!("{}", &src.lines().take(15).collect::<Vec<_>>().join("\n"));
-            println!("\n(parser stub) → parsed program placeholder");
-        }
-        Err(e) => {
-            eprintln!("Failed to read {}: {}", path, e);
-            std::process::exit(1);
-        }
+    if args.len() < 3 || args[1] != "run" {
+        eprintln!("Usage: archarit run <file.arch>");
+        std::process::exit(1);
+    }
+
+    let path = &args[2];
+    let source = fs::read_to_string(path)
+        .unwrap_or_else(|error| panic!("Cannot read {path}: {error}"));
+
+    let tokens = lexer::tokenize(&source);
+    let program = parser::parse(tokens);
+
+    if let Err(error) = interpreter::run(program) {
+        eprintln!("Runtime error: {error}");
+        std::process::exit(1);
     }
 }
