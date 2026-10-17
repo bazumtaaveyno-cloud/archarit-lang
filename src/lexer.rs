@@ -1,4 +1,4 @@
-// ============================================================
+ // ============================================================
 // ARCHARIT — DIVISION 1: CORE LANGUAGE
 // FILE: division1_core_lexer.rs
 // STATUS: COMPLETE LEXER FOR DIVISION 1
